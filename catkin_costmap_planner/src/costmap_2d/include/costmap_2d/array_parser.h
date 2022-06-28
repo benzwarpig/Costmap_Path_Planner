@@ -34,8 +34,7 @@
 #include <vector>
 #include <string>
 
-namespace costmap_2d
-{
+namespace costmap_2d {
 
 /** @brief Parse a vector of vectors of floats from a string.
  * @param error_return If no error, error_return is set to "".  If
@@ -44,8 +43,8 @@ namespace costmap_2d
  *
  * On error, error_return is set and the return value could be
  * anything, like part of a successful parse. */
-std::vector<std::vector<float> > parseVVF(const std::string& input, std::string& error_return);
+std::vector<std::vector<float>> parseVVF(const std::string& input, std::string& error_return);
 
-}  // end namespace costmap_2d
+} // end namespace costmap_2d
 
-#endif  // COSTMAP_2D_ARRAY_PARSER_H
+#endif // COSTMAP_2D_ARRAY_PARSER_H

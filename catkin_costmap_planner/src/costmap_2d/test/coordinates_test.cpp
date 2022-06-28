@@ -39,94 +39,90 @@
 
 using namespace costmap_2d;
 
-TEST(CostmapCoordinates, easy_coordinates_test)
-{
-  Costmap2D costmap(2, 3, 1.0, 0, 0);
+TEST(CostmapCoordinates, easy_coordinates_test) {
+    Costmap2D costmap(2, 3, 1.0, 0, 0);
 
-  double wx, wy;
-  costmap.mapToWorld(0u, 0u, wx, wy);
-  EXPECT_DOUBLE_EQ(wx, 0.5);
-  EXPECT_DOUBLE_EQ(wy, 0.5);
-  costmap.mapToWorld(1u, 2u, wx, wy);
-  EXPECT_DOUBLE_EQ(wx, 1.5);
-  EXPECT_DOUBLE_EQ(wy, 2.5);
+    double wx, wy;
+    costmap.mapToWorld(0u, 0u, wx, wy);
+    EXPECT_DOUBLE_EQ(wx, 0.5);
+    EXPECT_DOUBLE_EQ(wy, 0.5);
+    costmap.mapToWorld(1u, 2u, wx, wy);
+    EXPECT_DOUBLE_EQ(wx, 1.5);
+    EXPECT_DOUBLE_EQ(wy, 2.5);
 
-  unsigned int umx, umy;
-  int mx, my;
-  ASSERT_TRUE(costmap.worldToMap(wx, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_EQ(umy, 2);
-  costmap.worldToMapNoBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 1);
-  EXPECT_EQ(my, 2);
+    unsigned int umx, umy;
+    int          mx, my;
+    ASSERT_TRUE(costmap.worldToMap(wx, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_EQ(umy, 2);
+    costmap.worldToMapNoBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 1);
+    EXPECT_EQ(my, 2);
 
-  // Invalid Coordinate
-  wx = 2.5;
-  EXPECT_FALSE(costmap.worldToMap(wx, wy, umx, umy));
-  costmap.worldToMapEnforceBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 1);
-  EXPECT_EQ(my, 2);
-  costmap.worldToMapNoBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 2);
-  EXPECT_EQ(my, 2);
+    // Invalid Coordinate
+    wx = 2.5;
+    EXPECT_FALSE(costmap.worldToMap(wx, wy, umx, umy));
+    costmap.worldToMapEnforceBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 1);
+    EXPECT_EQ(my, 2);
+    costmap.worldToMapNoBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 2);
+    EXPECT_EQ(my, 2);
 
-  // Border Cases
-  EXPECT_TRUE(costmap.worldToMap(0.0, wy, umx, umy));
-  EXPECT_EQ(umx, 0);
-  EXPECT_TRUE(costmap.worldToMap(0.25, wy, umx, umy));
-  EXPECT_EQ(umx, 0);
-  EXPECT_TRUE(costmap.worldToMap(0.75, wy, umx, umy));
-  EXPECT_EQ(umx, 0);
-  EXPECT_TRUE(costmap.worldToMap(0.9999, wy, umx, umy));
-  EXPECT_EQ(umx, 0);
-  EXPECT_TRUE(costmap.worldToMap(1.0, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_TRUE(costmap.worldToMap(1.25, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_TRUE(costmap.worldToMap(1.75, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_TRUE(costmap.worldToMap(1.9999, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_FALSE(costmap.worldToMap(2.0, wy, umx, umy));
-  costmap.worldToMapEnforceBounds(2.0, wy, mx, my);
-  EXPECT_EQ(mx, 1);
+    // Border Cases
+    EXPECT_TRUE(costmap.worldToMap(0.0, wy, umx, umy));
+    EXPECT_EQ(umx, 0);
+    EXPECT_TRUE(costmap.worldToMap(0.25, wy, umx, umy));
+    EXPECT_EQ(umx, 0);
+    EXPECT_TRUE(costmap.worldToMap(0.75, wy, umx, umy));
+    EXPECT_EQ(umx, 0);
+    EXPECT_TRUE(costmap.worldToMap(0.9999, wy, umx, umy));
+    EXPECT_EQ(umx, 0);
+    EXPECT_TRUE(costmap.worldToMap(1.0, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_TRUE(costmap.worldToMap(1.25, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_TRUE(costmap.worldToMap(1.75, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_TRUE(costmap.worldToMap(1.9999, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_FALSE(costmap.worldToMap(2.0, wy, umx, umy));
+    costmap.worldToMapEnforceBounds(2.0, wy, mx, my);
+    EXPECT_EQ(mx, 1);
 }
 
-TEST(CostmapCoordinates, hard_coordinates_test)
-{
-  Costmap2D costmap(2, 3, 0.1, -0.2, 0.2);
+TEST(CostmapCoordinates, hard_coordinates_test) {
+    Costmap2D costmap(2, 3, 0.1, -0.2, 0.2);
 
-  double wx, wy;
-  costmap.mapToWorld(0, 0, wx, wy);
-  EXPECT_DOUBLE_EQ(wx, -0.15);
-  EXPECT_DOUBLE_EQ(wy, 0.25);
-  costmap.mapToWorld(1, 2, wx, wy);
-  EXPECT_DOUBLE_EQ(wx, -0.05);
-  EXPECT_DOUBLE_EQ(wy, 0.45);
+    double wx, wy;
+    costmap.mapToWorld(0, 0, wx, wy);
+    EXPECT_DOUBLE_EQ(wx, -0.15);
+    EXPECT_DOUBLE_EQ(wy, 0.25);
+    costmap.mapToWorld(1, 2, wx, wy);
+    EXPECT_DOUBLE_EQ(wx, -0.05);
+    EXPECT_DOUBLE_EQ(wy, 0.45);
 
-  unsigned int umx, umy;
-  int mx, my;
-  EXPECT_TRUE(costmap.worldToMap(wx, wy, umx, umy));
-  EXPECT_EQ(umx, 1);
-  EXPECT_EQ(umy, 2);
-  costmap.worldToMapNoBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 1);
-  EXPECT_EQ(my, 2);
+    unsigned int umx, umy;
+    int          mx, my;
+    EXPECT_TRUE(costmap.worldToMap(wx, wy, umx, umy));
+    EXPECT_EQ(umx, 1);
+    EXPECT_EQ(umy, 2);
+    costmap.worldToMapNoBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 1);
+    EXPECT_EQ(my, 2);
 
-  // Invalid Coordinate
-  wx = 2.5;
-  EXPECT_FALSE(costmap.worldToMap(wx, wy, umx, umy));
-  costmap.worldToMapEnforceBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 1);
-  EXPECT_EQ(my, 2);
-  costmap.worldToMapNoBounds(wx, wy, mx, my);
-  EXPECT_EQ(mx, 27);
-  EXPECT_EQ(my, 2);
+    // Invalid Coordinate
+    wx = 2.5;
+    EXPECT_FALSE(costmap.worldToMap(wx, wy, umx, umy));
+    costmap.worldToMapEnforceBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 1);
+    EXPECT_EQ(my, 2);
+    costmap.worldToMapNoBounds(wx, wy, mx, my);
+    EXPECT_EQ(mx, 27);
+    EXPECT_EQ(my, 2);
 }
 
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest( &argc, argv );
-  return RUN_ALL_TESTS();
+int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
-
