@@ -152,6 +152,8 @@ private:
     Costmap2D   costmap_;
     std::string global_frame_;
 
+    // TAG : layered_costmap if global_costmap , false , not roll
+    // TAG : layered_costmap if local_costmap  , true  , roll
     bool rolling_window_; /// < @brief Whether or not the costmap should roll with the robot
 
     bool         current_;
@@ -160,9 +162,11 @@ private:
 
     std::vector<boost::shared_ptr<Layer>> plugins_;
 
-    bool                              initialized_;
-    bool                              size_locked_;
-    double                            circumscribed_radius_, inscribed_radius_;
+    bool   initialized_;
+    bool   size_locked_;
+    double circumscribed_radius_, inscribed_radius_;
+
+    // TAG : layered_costmap the Layer also have this one , why?
     std::vector<geometry_msgs::Point> footprint_;
 };
 

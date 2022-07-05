@@ -89,10 +89,14 @@ void LayeredCostmap::resizeMap(unsigned int size_x, unsigned int size_y, double 
 void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw) {
     // Lock for the remainder of this function, some plugins (e.g. VoxelLayer)
     // implement thread unsafe updateBounds() functions.
+
+    // 如果我们使用的是滚动缓冲costmap …我们需要使用机器人的位置来更新原点
+    // 计算出local_costmap 地图左下角坐标,注意该范围边框方向与栅格一样的
     boost::unique_lock<Costmap2D::mutex_t> lock(*(costmap_.getMutex()));
 
     // if we're using a rolling buffer costmap... we need to update the origin using the robot's position
     if (rolling_window_) {
+        // TAG : layered_costmap 机器人当前坐标减去局部costmap长宽的一半
         double new_origin_x = robot_x - costmap_.getSizeInMetersX() / 2;
         double new_origin_y = robot_y - costmap_.getSizeInMetersY() / 2;
         costmap_.updateOrigin(new_origin_x, new_origin_y);
@@ -104,6 +108,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     minx_ = miny_ = 1e30;
     maxx_ = maxy_ = -1e30;
 
+    // TAG : layered_costmap 根据各层的更新情况确定master costmap地图的边界
     for (vector<boost::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
          ++plugin) {
         if (!(*plugin)->isEnabled())
@@ -112,6 +117,12 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
         double prev_miny = miny_;
         double prev_maxx = maxx_;
         double prev_maxy = maxy_;
+
+        /*
+            在这里会调用各层的updateBounds 更新各层的costmap地图边界
+            最小值和最大值，以格子坐标表示，最后会取所有costmap层中(静态层，动态层)最小//和最大的范围，
+            作为master 综合层
+        */
         (*plugin)->updateBounds(robot_x, robot_y, robot_yaw, &minx_, &miny_, &maxx_, &maxy_);
         if (minx_ > prev_minx || miny_ > prev_miny || maxx_ < prev_maxx || maxy_ < prev_maxy) {
             ROS_WARN_THROTTLE(1.0, "Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
@@ -122,6 +133,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
         }
     }
 
+    // TAG : layered_costmap 更新master costmap 综合层的边界
     int x0, xn, y0, yn;
     costmap_.worldToMapEnforceBounds(minx_, miny_, x0, y0);
     costmap_.worldToMapEnforceBounds(maxx_, maxy_, xn, yn);
@@ -140,6 +152,10 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     for (vector<boost::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
          ++plugin) {
         if ((*plugin)->isEnabled())
+
+            //调用各层的updateCosts函数用各层的信息去更新更新范围内的地图信息
+            // x0, y0, xn, yn是该层costmap地图左下角和右上角坐标，以像素表示
+            //把master costmap 及相应范围传给各层costmap(如static costmap)
             (*plugin)->updateCosts(costmap_, x0, y0, xn, yn);
     }
 
@@ -151,6 +167,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     initialized_ = true;
 }
 
+// TAG : layered_costmap ask all plugin is current
 bool LayeredCostmap::isCurrent() {
     current_ = true;
     for (vector<boost::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
@@ -161,6 +178,7 @@ bool LayeredCostmap::isCurrent() {
     return current_;
 }
 
+// TAG : layered_costmap call all plugin updata footprint
 void LayeredCostmap::setFootprint(const std::vector<geometry_msgs::Point>& footprint_spec) {
     footprint_ = footprint_spec;
     costmap_2d::calculateMinAndMaxDistances(footprint_spec, inscribed_radius_, circumscribed_radius_);
